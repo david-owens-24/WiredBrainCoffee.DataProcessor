@@ -35,5 +35,16 @@
 
             Assert.Empty(machineDataItems);
         }
+
+        [Fact]
+        public void ShouldThrowExceptionForInvalidLine()
+        {
+            // Arrange
+            string[] csvLines = new string[] { "Cappuccino"};
+
+            // Act
+            Assert.Throws<Exception>(() => CsvLineParser.Parse(csvLines));
+
+        }
     }
 }
