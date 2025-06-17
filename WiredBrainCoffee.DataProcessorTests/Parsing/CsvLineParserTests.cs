@@ -40,11 +40,14 @@
         public void ShouldThrowExceptionForInvalidLine()
         {
             // Arrange
-            string[] csvLines = new string[] { "Cappuccino"};
+            var csvLine = "Cappucino";
 
-            // Act
-            Assert.Throws<Exception>(() => CsvLineParser.Parse(csvLines));
+            string[] csvLines = new string[] {csvLine};
 
+            // Act and Assert
+            var exception = Assert.Throws<Exception>(() => CsvLineParser.Parse(csvLines));
+
+            Assert.Equal($"Invalid csv line: {csvLine}", exception.Message);
         }
     }
 }
