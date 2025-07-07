@@ -1,4 +1,5 @@
-﻿using WiredBrainCoffee.DataProcessor.Model;
+﻿using WiredBrainCoffee.DataProcessor.Data;
+using WiredBrainCoffee.DataProcessor.Model;
 
 namespace WiredBrainCoffee.DataProcessor.Processing
 {
@@ -8,7 +9,11 @@ namespace WiredBrainCoffee.DataProcessor.Processing
         public void ShouldSaveCountPerCoffeeType()
         {
             // Arrange
-            var machineDataProcessor = new MachineDataProcessor();
+
+            // We create a fake store to avoid dependencies on external systems
+            // And also because it's the MachinedataProcessor that is being tested, not the CoffeeCountStore
+            var coffeeCountStore = new FakeCoffeeCountStore();
+            var machineDataProcessor = new MachineDataProcessor(coffeeCountStore);
             var items = new[]
             {
                 new MachineDataItem("Cappuccino", new DateTime(2022, 10, 27, 8, 0, 0)),
@@ -20,10 +25,26 @@ namespace WiredBrainCoffee.DataProcessor.Processing
             machineDataProcessor.ProcessItems(items);
 
             // Assert
+            Assert.Equal(2, coffeeCountStore.SavedItems.Count);
 
-            // Can't assert at the moment as the ProcessItems method has multiple responsibilities-
-            // processing items
-            // and writing to the console.
+            var item = coffeeCountStore.SavedItems[0];
+            Assert.Equal("Cappuccino", item.CoffeeType);
+            Assert.Equal(2, item.Count);
+
+            item = coffeeCountStore.SavedItems[1];
+            Assert.Equal("Espresso", item.CoffeeType);
+            Assert.Equal(1, item.Count);
         }
+    }
+}
+
+
+public class FakeCoffeeCountStore : ICoffeeCountStore
+{
+    public List<CoffeeCountItem> SavedItems { get; } = new();
+
+    public void Save(CoffeeCountItem item)
+    {
+        SavedItems.Add(item);
     }
 }
