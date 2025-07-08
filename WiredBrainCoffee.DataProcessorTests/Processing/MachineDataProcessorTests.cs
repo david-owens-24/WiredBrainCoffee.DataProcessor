@@ -11,7 +11,7 @@ namespace WiredBrainCoffee.DataProcessor.Processing
             // Arrange
 
             // We create a fake store to avoid dependencies on external systems
-            // And also because it's the MachinedataProcessor that is being tested, not the CoffeeCountStore
+            // And also because it's the MachineDataProcessor that is being tested, not the CoffeeCountStore
             var coffeeCountStore = new FakeCoffeeCountStore();
             var machineDataProcessor = new MachineDataProcessor(coffeeCountStore);
             var items = new[]
@@ -34,6 +34,34 @@ namespace WiredBrainCoffee.DataProcessor.Processing
             item = coffeeCountStore.SavedItems[1];
             Assert.Equal("Espresso", item.CoffeeType);
             Assert.Equal(1, item.Count);
+        }
+
+        [Fact]
+        public void ShouldClearPreviousCoffeeCount()
+        {
+            // Arrange
+
+            // We create a fake store to avoid dependencies on external systems
+            // And also because it's the MachineDataProcessor that is being tested, not the CoffeeCountStore
+            var coffeeCountStore = new FakeCoffeeCountStore();
+            var machineDataProcessor = new MachineDataProcessor(coffeeCountStore);
+            var items = new[]
+            {
+                new MachineDataItem("Cappuccino", new DateTime(2022, 10, 27, 8, 0, 0)),
+            };
+
+            // Act
+            machineDataProcessor.ProcessItems(items);
+            machineDataProcessor.ProcessItems(items);
+
+            // Assert
+            Assert.Equal(2, coffeeCountStore.SavedItems.Count);
+
+            foreach(var item in coffeeCountStore.SavedItems)
+            {
+                Assert.Equal("Cappuccino", item.CoffeeType);
+                Assert.Equal(1, item.Count);
+            }
         }
     }
 }
